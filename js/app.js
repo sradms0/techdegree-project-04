@@ -28,6 +28,11 @@ const ticTacToe = (function () {
             });
             const gridParent = this.grid[0].parentElement;
 
+            // every time a player selects a box, 
+            //  fill the box, 
+            //  change the cursor to default,
+            //  add the box (containing coords) to player's list,
+            //  and check the status of the game
             const next = (box, player) => {
                 box.classList.add('box-filled-' + player.number);
                 box.style.cursor = 'default';
@@ -35,11 +40,38 @@ const ticTacToe = (function () {
                 player.addMark(box);
                 this.checkStatus();
             }
+
+            // create one function to handle all mouse events,
+            //  depending on the event type.
+            //
+            // mouseover: will show the player's symbol as 
+            // the background of the box
+            //
+            // mouseout: will delete the player's symbol from the
+            //  box background after a mouseover 
+            //
+            // click: will run the next() for current player
+            //  - after current player selects a box, the other 
+            //    player in the player list is selected to go
+            //
+            //  - if the game is 'player vs computer', each time
+            //    the player changes, check if the new current
+            //    player is 'computer', and randomly select
+            //    and unselected box :
+            //    (this is an easy ai; the minimax algorithm
+            //    will be implemented in the near future).
+            //      - after Math.random() selects a box,
+            //        setTimeout() is run before that box is actually
+            //        set just for nice appearance. 
+            //        during this process gridOff() runs so the human
+            //        player cannot select a box, and gridOn() is run
+            //        after the ai turn is over.
             const mouseHandler = (e) => {
                 if (!this.winner && !this.hasTie) {
                     if (e.target.classList.contains('box')) {
                         const box = e.target;
-
+                        // an unselect boxe should have only 1 class.
+                        // if unselected, then procede based on event types
                         if (box.classList.length < 2) {
                             if (e.type.includes('mouse')) {
                                 let img = '';
@@ -83,6 +115,7 @@ const ticTacToe = (function () {
                     }
                 }
             }
+            // add the mousehandler to the grid
             gridParent.addEventListener('mouseover', (e) => {
                 mouseHandler(e);
             });
@@ -93,6 +126,8 @@ const ticTacToe = (function () {
                 mouseHandler(e);
             });
 
+            // have the end screen listen for when player
+            //  wants to play again
             this.endScreen.addEventListener('click', (e) => {
                 if (e.target.tagName === 'A') {
                     this.reset()
@@ -104,6 +139,36 @@ const ticTacToe = (function () {
         }
 
 
+        // every time a turn is over, checkStatus() uses
+        //  the validator object to check if a win or tie
+        //  is present.
+        //  validator:
+        //      -analayzes the current player's moves
+        //      -methods checking for a win:
+        //          --straight(i)--
+        //              - vertical line will consist of
+        //                x boxes in the same column
+        //              - horizontal line will consist of
+        //                x boxes in the same row
+        //              (check rows or columns)
+        //          --leftDiagonal(i)--
+        //              - left diagonal line will consist of
+        //                x boxes with each box holding same
+        //                row and col. (eg.: 0,0 1,1 2,2)
+        //              (check rows and columns)
+        //          --rightDiagonal(i)--
+        //              - right diagonal line will consist of
+        //                x boxes meeting the following:
+        //                  -for x boxes, each row is on less
+        //                   than the last
+        //                  -for x boxes, each column is on more
+        //                   than the last
+        //          (the paramater, i, is an int passed in from
+        //          a loop, validator.iterator incrementing i and passing it each time
+        //          to these methods, incrementing the rows array and/or
+        //          cols array within the validator)
+        //          - win() checks col and rows arrays after each iteration
+        //      -if win() is false after these checks, then tie() is run
         checkStatus() {
             if (this.currentPlayer.marks.length >= this.sides) {
                 const validator = {
