@@ -90,18 +90,9 @@ const ticTacToe = (function () {
                                     this.currentPlayer.turn = 'on';
 
                                     if (this.currentPlayer.type === 'computer') {
-                                        const random = () => {
-                                            return Math.floor(Math.random() * (this.sides**2 - 0) + 0);
-                                        }
-
-                                        let box = this.grid[random()];
-
-                                        while (box.classList.toString().includes('box-filled')) {
-                                            box = this.grid[random()];
-                                        }
                                         this.gridOff();
                                         setTimeout(() => {
-                                            next(box, this.currentPlayer);
+                                            next(this.currentPlayer.aiChoice(), this.currentPlayer);
                                             if (!this.winner || !this.tie){
                                                 this.currentPlayer = this.players[0];
                                                 this.currentPlayer.turn = 'on';
@@ -302,6 +293,14 @@ const ticTacToe = (function () {
                 this.symbol = "url('img/x.svg')";
             }
         }
+
+        aiChoice() {
+            const emptyBoxes = document.querySelectorAll(
+            '.boxes li:not([class*="box-filled"])');
+            const randomInt = Math.floor(Math.random() * emptyBoxes.length);
+            return emptyBoxes[randomInt];
+        }
+
         set name(name) {
             this._name = name;
             if (name === '') {
@@ -310,6 +309,7 @@ const ticTacToe = (function () {
             this.nameLi.textContent = this._name;
             this.playerLi.appendChild(this.nameLi);
         }
+
         set turn(turn) {
             if (turn.toLowerCase() === 'on') {
                 this.playerLi.classList.add('active');
