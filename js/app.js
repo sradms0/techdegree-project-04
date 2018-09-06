@@ -122,13 +122,15 @@ const main = ( () => {
     //  wants to play again
     endDiv.addEventListener('click', (e) => {
         if (e.target.tagName === 'A') {
-            board.reset()
-
             boxLis.forEach(i => {
                 i.className = 'box'
                 i.style.cursor = '';
                 i.style.backgroundImage = '';
             });
+
+            endDiv.classList.remove('screen-win-' + board.winnerNumber);
+            board.reset()
+
             togglePlayerFlag(board.currentPlayer, 'on');
             screenDisplay(endDiv, 'off', 0);
             screenDisplay(boardDiv, 'on', 0);
